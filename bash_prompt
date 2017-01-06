@@ -1,0 +1,63 @@
+ # Add an "alert" alias for long running commands.  Use like so:
+ 93 #   sleep 10; alert
+ 94 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+ 95
+ 96 # Alias definitions.
+ 97 # You may want to put all your additions into a separate file like
+ 98 # ~/.bash_aliases, instead of adding them here directly.
+ 99 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
+100
+101 if [ -f ~/.bash_aliases ]; then
+102     . ~/.bash_aliases
+103 fi
+104
+105 # enable programmable completion features (you don't need to enable
+106 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+107 # sources /etc/bash.bashrc).
+108 if ! shopt -oq posix; then
+109   if [ -f /usr/share/bash-completion/bash_completion ]; then
+110     . /usr/share/bash-completion/bash_completion
+111   elif [ -f /etc/bash_completion ]; then
+112     . /etc/bash_completion
+113   fi
+114 fi
+115
+116 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+117     c_reset='\[\e[0m\]'
+118     c_user='\[\033[0;35m\]'
+119     c_path='\[\e[0;35m\]'
+120     c_git_clean='\[\e[0;32m\]'
+121     c_git_dirty='\[\e[0;31m\]'
+122 else
+123     c_reset=
+124     c_user=
+125     c_path=
+126     c_git_clean=
+127     c_git_dirty=
+128 fi
+129
+130
+131 git_prompt ()
+132 {
+133     if ! git rev-parse --git-dir > /dev/null 2>&1; then
+134         return 0
+135     fi
+136
+137     git_branch=$(git branch 2>/dev/null| sed -n '/^\*/s/^\* //p')
+138
+139     if git diff --quiet 2>/dev/null >&2; then
+140         git_color="${c_git_clean}"
+141     else
+142         git_color=${c_git_dirty}
+143     fi
+144
+145     echo " [$git_color$git_branch${c_reset}]"
+146 }
+147
+148 PROMPT_COMMAND='PS1="${c_user}\u${c_reset}@${c_user}\h${c_reset}:${c_path}\w  ($(rvm-prompt)) ${c_reset}$(git_prompt)\$ "'
+149
+150 #160 PROMPT_COMMAND='PS1="${c_user}\u${c_reset}:${c_white}(VM-REALM)${c_path}\w ($(rvm-prompt))${c_reset}$(git_prompt)\$ "'
+151
+152
+153 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+154 export PATH="$HOME/.npm-packages/bin:$PATH"
